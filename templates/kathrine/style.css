@@ -916,3 +916,122 @@ a:hover
   width: 30px;
   height: 26px;
 }
+
+/* ============================================================
+ * KREMERA — tema DARK + DOURADO (override do tema bege padrao)
+ * Bloco isolado no fim do arquivo: remover daqui pra baixo
+ * volta ao tema original. Paleta:
+ *   bg fundo   #0c1016   |  paineis   #141a23 / #1a2230
+ *   linha odd  #161c25   |  even      #1d2533
+ *   borda      #3a3320 (dourado escuro)
+ *   ouro       #e8c66a   |  ouro hi   #f3d98a
+ *   texto      #c8c2b4   |  titulo    #ece6d8
+ * ============================================================ */
+
+body {
+	background: #0c1016 !important;
+	background: radial-gradient(1100px 600px at 50% -120px, #18222e 0%, #0c1016 60%) !important;
+	color: #c8c2b4 !important;
+}
+
+/* tabs (menu superior) */
+#tabs {
+	background: #10151d !important;
+	border-bottom: 2px solid #e8c66a !important;
+	border-radius: 6px 6px 0 0;
+}
+#tabs .tab {
+	background: #1a2230 !important;
+	color: #c8c2b4 !important;
+	border-radius: 5px 5px 0 0;
+	margin-right: 2px;
+}
+#tabs .tab:hover { color: #f3d98a !important; text-decoration: none !important; }
+#tabs .tab-active {
+	background: #e8c66a !important;
+	color: #1a1206 !important;
+	border-radius: 5px 5px 0 0;
+}
+
+/* submenu */
+#mainsubmenu {
+	background: #141a23 !important;
+	border-bottom: 1px solid #3a3320 !important;
+}
+#mainsubmenu a { color: #d8d2c4 !important; }
+#mainsubmenu a:hover { color: #f3d98a !important; }
+#mainsubmenu .separator { background: none !important; border-left: 1px solid #3a3320; width: 1px; }
+
+/* corpo do conteudo */
+#content {
+	background: #11161e !important;
+	border-left: 1px solid #2a3140 !important;
+	border-right: 1px solid #2a3140 !important;
+}
+#content-bot {
+	background: #11161e !important;
+	border: 1px solid #2a3140 !important;
+	border-top: none !important;
+	border-radius: 0 0 6px 6px;
+	height: 14px !important;
+}
+#copyrights { color: #8a8576 !important; }
+#copyrights a { color: #e8c66a !important; }
+
+/* links */
+a { color: #e8c66a !important; }
+a:hover { color: #f3d98a !important; }
+
+/* primeira linha (serverName » titulo) + status */
+#margins > table a { color: #f3d98a !important; }
+#margins hr { border: none !important; border-top: 1px solid #3a3320 !important; }
+
+/* ---- tabelas ---- */
+.TableContainer { border-color: #2a3140 !important; }
+.TableContainer .Odd,
+.Content .BoxContent .Odd { background-color: #161c25 !important; color: #c8c2b4 !important; }
+.TableContainer .Even,
+.Content .BoxContent .Even { background-color: #1d2533 !important; color: #c8c2b4 !important; }
+
+/* cabecalho/caption das tabelas -> barra dourada */
+.TableContainer .CaptionContainer,
+.TableContainer .CaptionContainer .CaptionInnerContainer {
+	background-color: #e8c66a !important;
+	background-image: linear-gradient(#f3d98a, #d3ad4e) !important;
+}
+.TableContainer .CaptionContainer .Text { color: #1a1206 !important; }
+
+.TableContentContainer { background-color: #141a23 !important; border-color: #2a3140 !important; }
+.TableContainer .Table1,
+.TableContainer .Table2,
+.TableContainer .Table3,
+.TableContainer .Table4,
+.TableContainer .Table5 {
+	background-color: #141a23 !important;
+	border-color: #2a3140 !important;
+}
+.TableContainer .Table2 .InnerTableContainer td,
+.TableContainer .Table3 .TableContentAndRightShadow td { border-color: #232a36 !important; }
+
+/* labels horizontais */
+.LabelH, .LabelH td { background-color: #1a2230 !important; color: #ece6d8 !important; }
+
+/* caixas de mensagem/erro */
+.SmallBox .ErrorMessage,
+.SmallBox .Message { background-color: #1a2230 !important; color: #c8c2b4 !important; }
+
+/* headlines de noticias (texto ja era branco) */
+.Content #News .NewsHeadlineBackground,
+.Content #NewsArchive .NewsHeadlineBackground,
+.Content #FeaturedArticle .NewsHeadlineBackground {
+	background: linear-gradient(#1d2533, #141a23) !important;
+	border-color: #3a3320 !important;
+	border-bottom: 1px solid #e8c66a !important;
+}
+.Content #News .NewsHeadlineText,
+.Content #News .NewsHeadlineAuthor,
+.Content #News .NewsHeadlineDate,
+.Content #NewsArchive .NewsHeadlineText,
+.Content #NewsArchive .NewsHeadlineDate,
+.Content #FeaturedArticle .NewsHeadlineText,
+.Content #FeaturedArticle .NewsHeadlineDate { color: #f3d98a !important; }
