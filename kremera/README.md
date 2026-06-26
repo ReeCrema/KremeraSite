@@ -64,5 +64,5 @@ docker exec crystalserver-database-1 mariadb-dump --default-character-set=utf8mb
   de temas, mude pra `true`.
 - Criação de char é **classless**: `character_samples="0=Rook Sample"` (1 sample) esconde o
   seletor de vocação e cria todo char como **None**. Ver memória do projeto.
-- Branch deste fork: `kremera`. `origin` = MyAAC oficial (slawkens/myaac) — sem push lá;
-  criar um fork próprio (ex.: `ReeCrema/KremeraSite`) pra publicar.
+- Fork: **`ReeCrema/KremeraSite`** (de slawkens/myaac). Remotes: `kremera` → o fork
+  (`git push kremera kremera`), `origin` → upstream slawkens/myaac (pull de updates). Branch: `kremera`.
