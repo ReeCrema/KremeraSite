@@ -158,22 +158,27 @@
 			<tr>
 				{{ hook('HOOK_CHARACTERS_BEFORE_SKILLS') }}
 
-				{% if config.characters.skills %}
+				{# Kremera: painel classless de 15 skills em 2 pools (Combate/Trabalho), vindo de
+				   $kremera_skills (system/pages/characters.php). Substitui as 8 skills nativas do Tibia. #}
+				{% if config.characters.skills and kremera_skills %}
 				<!-- SKILLS -->
-				<td width="30%" valign="top">
+				<td width="40%" valign="top">
+					{% for pool in kremera_skills %}
 					<table border="0" cellspacing="1" cellpadding="4" width="100%">
 						<tr bgcolor="{{ config.vdarkborder }}">
-							<td colspan="2" class="white"><B>Skills</b></td>
+							<td colspan="2" class="white"><b>{{ pool.label }}</b><span style="float:right;font-weight:normal;color:#B3A88C">{{ pool.used }} / {{ pool.max }}</span></td>
 						</tr>
 						{% set i = 0 %}
-						{% for skill in skills %}
+						{% for s in pool.skills %}
 						{% set i = i + 1 %}
 						<tr bgcolor="{{ getStyle(i) }}">
-							<td valign="top">{{ skill.name }}</td>
-							<td>{{ skill.value }}</td>
+							<td valign="top" width="42%">{{ s.name }}</td>
+							<td><div class="sbar" style="display:inline-block;width:110px;vertical-align:middle"><i style="width:{{ s.points }}%"></i></div><span style="margin-left:8px">{{ s.points }}</span></td>
 						</tr>
 						{% endfor %}
 					</table>
+					<br/>
+					{% endfor %}
 				</td>
 				<!-- SKILLS_END -->
 				{% endif %}

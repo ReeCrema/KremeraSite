@@ -174,6 +174,50 @@ if($player->isLoaded() && !$player->isDeleted())
 		foreach($skills as &$skill) {
 			$skill['name'] = getSkillName($skill['skillid']);
 		}
+		unset($skill);
+	}
+
+	// ── KREMERA: painel de skills classless (15 skills em 2 pools) ────────────────────
+	// Espelha data-global/lib/kremera/skills.lua (S.list + S.getPoints). native = coluna do
+	// `players`; custom = player_storage em ST_VALUE(47100)+idx. Pontos = valor - base, clamp >=0.
+	$kremera_skills = null;
+	if($config['characters']['skills']) {
+		// label, pool, coluna nativa (ou null), storage key (ou null), base
+		$K = array(
+			array('Melee',         'combat', 'skill_sword',     null,  0),
+			array('Distance',      'combat', 'skill_dist',      null,  0),
+			array('Shield',        'combat', 'skill_shielding', null,  0),
+			array('Magic',         'combat', 'maglevel',        null,  0),
+			array('Healing',       'combat', null,              47105, 0),
+			array('Fishing',       'worker', 'skill_fishing',   null,  10),
+			array('Mining',        'worker', null,              47107, 0),
+			array('Lumberjacking', 'worker', null,              47108, 0),
+			array('Harvesting',    'worker', null,              47109, 0),
+			array('Skinning',      'worker', null,              47110, 0),
+			array('Cooking',       'worker', null,              47111, 0),
+			array('Alchemy',       'worker', null,              47112, 0),
+			array('Tailoring',     'worker', null,              47113, 0),
+			array('Blacksmithing', 'worker', null,              47114, 0),
+			array('Carpentry',     'worker', null,              47115, 0),
+		);
+		$nat = $db->query('SELECT `maglevel`, `skill_sword`, `skill_dist`, `skill_shielding`, `skill_fishing` FROM `players` WHERE `id` = ' . $player->getId())->fetch();
+		$stor = array();
+		if($db->hasTable('player_storage')) {
+			$storRows = $db->query('SELECT `key`, `value` FROM `player_storage` WHERE `player_id` = ' . $player->getId() . ' AND `key` BETWEEN 47101 AND 47115')->fetchAll();
+			foreach($storRows as $r) { $stor[(int)$r['key']] = (int)$r['value']; }
+		}
+		$kremera_skills = array(
+			'combat' => array('label' => 'Combate',  'max' => 200, 'used' => 0, 'skills' => array()),
+			'worker' => array('label' => 'Trabalho', 'max' => 400, 'used' => 0, 'skills' => array()),
+		);
+		foreach($K as $s) {
+			list($label, $pool, $col, $skey, $base) = $s;
+			$raw = ($col !== null) ? (isset($nat[$col]) ? (int)$nat[$col] : 0) : (isset($stor[$skey]) ? $stor[$skey] : 0);
+			$pts = $raw - $base;
+			if($pts < 0) { $pts = 0; }
+			$kremera_skills[$pool]['skills'][] = array('name' => $label, 'points' => $pts);
+			$kremera_skills[$pool]['used'] += $pts;
+		}
 	}
 
 	$quests_enabled = $config['characters']['quests'] && !empty($config['quests']);
@@ -419,6 +463,7 @@ WHERE killers.death_id = '".$death['id']."' ORDER BY killers.final_hit DESC, kil
 		),
 		'comment' => !empty($comment) ? nl2br($comment) : null,
 		'skills' => isset($skills) ? $skills : null,
+		'kremera_skills' => isset($kremera_skills) ? $kremera_skills : null,
 		'quests_enabled' => $quests_enabled,
 		'quests' => isset($quests) ? $quests : null,
 		'equipment' => isset($equipment) ? $equipment : null,
