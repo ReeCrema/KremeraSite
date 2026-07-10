@@ -32,7 +32,7 @@ $img = $template_path . '/images';
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Alegreya:ital,wght@0,400;0,500;0,700;1,400&family=IM+Fell+English:ital@1&display=swap" rel="stylesheet">
-	<link rel="stylesheet" href="<?php echo $template_path; ?>/style.css?v=2" type="text/css" />
+	<link rel="stylesheet" href="<?php echo $template_path; ?>/style.css?v=3" type="text/css" />
 	<?php echo template_place_holder('head_end'); ?>
 </head>
 <body>

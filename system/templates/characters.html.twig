@@ -15,10 +15,13 @@
 				<img src="images/edit.png"/>Edit
 			</a>
 		{% endif %}
-		<table border="0" cellspacing="1" cellpadding="4" width="100%">
+			{# Kremera: outfit flutua a direita do bloco de info. O markup original punha um <div>
+			   com position:absolute e margin-left fixo DENTRO do <table>, quebrando o alinhamento
+			   no layout do portal (caia por cima do texto). #}
 			{% if config.characters.outfit %}
-			<div style="width:64px;height:64px;border:2px solid #F1E0C6; border-radius:50px; padding:13px; margin-top:38px;margin-left:376px;position:absolute;"><img style="margin-left:-60px;margin-top:-60px;width:128px;height:128px;" src="{{ outfit }}" alt="player outfit"/></div>
+			<div style="float:right;width:96px;height:96px;margin:0 6px 10px 16px;border:1px solid #AE7C10;border-radius:3px;background:#0D1628;overflow:hidden;"><img style="display:block;width:128px;height:128px;max-width:none;margin:-16px 0 0 -16px;image-rendering:pixelated;" src="{{ outfit }}" alt="player outfit"/></div>
 			{% endif %}
+		<table border="0" cellspacing="1" cellpadding="4" width="100%">
 
 			<tr bgcolor="{{ config.vdarkborder }}">
 				<td colspan="2" class="white"><b>Character Information</b></td>
@@ -44,11 +47,7 @@
 			</tr>
 			{% endif %}
 
-			{% set rows = rows + 1 %}
-			<tr bgcolor="{{ getStyle(rows) }}">
-				<td>Profession:</td>
-				<td>{{ vocation }}</td>
-			</tr>
+			{# Kremera: classless — sem profissao/vocacao (linha removida) #}
 
 			{% if config.characters.level %}
 			{% set rows = rows + 1 %}
