@@ -20,13 +20,37 @@
 -- =====================================================================
 SET NAMES utf8mb4;
 
+-- ── 0) COLUNAS QUE O MYAAC ESPERA NAS TABELAS DO JOGO ────────────────
+-- Este MyAAC foi apontado para um DB Canary/crystalserver existente sem rodar
+-- a migracao de colunas do instalador (install/tools/5-database.php). Sem elas,
+-- paginas como highscores/online quebram (ex.: Unknown column 'accounts.country').
+-- Sao campos proprios do MyAAC (nao afetam o gameplay do Canary). Idempotente.
+ALTER TABLE `accounts`
+  ADD COLUMN IF NOT EXISTS `key` VARCHAR(64) NOT NULL DEFAULT '',
+  ADD COLUMN IF NOT EXISTS `created` INT(11) NOT NULL DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS `rlname` VARCHAR(255) NOT NULL DEFAULT '',
+  ADD COLUMN IF NOT EXISTS `location` VARCHAR(255) NOT NULL DEFAULT '',
+  ADD COLUMN IF NOT EXISTS `country` VARCHAR(3) NOT NULL DEFAULT '',
+  ADD COLUMN IF NOT EXISTS `web_lastlogin` INT(11) NOT NULL DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS `web_flags` INT(11) NOT NULL DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS `email_verified` TINYINT(1) NOT NULL DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS `email_new` VARCHAR(255) NOT NULL DEFAULT '',
+  ADD COLUMN IF NOT EXISTS `email_new_time` INT(11) NOT NULL DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS `email_code` VARCHAR(255) NOT NULL DEFAULT '',
+  ADD COLUMN IF NOT EXISTS `email_next` INT(11) NOT NULL DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS `premium_points` INT(11) NOT NULL DEFAULT 0;
+ALTER TABLE `players`
+  ADD COLUMN IF NOT EXISTS `created` INT(11) NOT NULL DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS `hide` TINYINT(1) NOT NULL DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS `comment` VARCHAR(5000) NOT NULL DEFAULT '';
+
 -- ── 1) SETTINGS (grupo core) ─────────────────────────────────────────
--- template travado no kathrine; status do game pela rede docker; criacao
+-- template travado no kremera (tema do handoff Fable); status do game pela rede docker; criacao
 -- classless (1 sample None) some o seletor de classe; pais padrao Brasil.
 DELETE FROM `myaac_settings` WHERE `name`='core' AND `key` IN
  ('template','template_allow_change','status_ip','character_samples','account_countries_most_popular');
 INSERT INTO `myaac_settings` (`name`,`key`,`value`) VALUES
- ('core','template','kathrine'),
+ ('core','template','kremera'),
  ('core','template_allow_change','false'),
  ('core','status_ip','crystal-server'),
  ('core','character_samples','0=Rook Sample'),

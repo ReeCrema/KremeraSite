@@ -7,7 +7,7 @@ Aqui ficam as customizações que **não vivem em arquivo** do MyAAC, pra serem 
 
 | Customização | Onde mora | No git? |
 |---|---|---|
-| Logo + tema dark/dourado | `templates/kathrine/images/logo.png`, `templates/kathrine/style.css` | ✅ (arquivos) |
+| Template `kremera` (landing + portal com **sidebar**) | `templates/kremera/` (template.php, style.css, config.php/ini, images) | ✅ (arquivos, via exceção no `.gitignore`) |
 | Settings (template, status, classless, país) | DB `myaac_settings` | ✅ via `kremera/seed.sql` |
 | Menus do site | DB `myaac_menu` | ✅ via `kremera/seed.sql` |
 | Páginas custom (rules, downloads) | DB `myaac_pages` | ✅ via `kremera/seed.sql` |
@@ -60,8 +60,9 @@ docker exec crystalserver-database-1 mariadb-dump --default-character-set=utf8mb
 
 ## Notas
 
-- Template travado no **kathrine** (`template_allow_change=false`) — pra reativar o seletor
-  de temas, mude pra `true`.
+- Template travado no **kremera** (`template_allow_change=false`) — pra reativar o seletor
+  de temas, mude pra `true`. Os arquivos do template ficam em `templates/kremera/` e são
+  versionados via a exceção `!templates/kremera` no `.gitignore` (o MyAAC ignora `templates/*`).
 - Criação de char é **classless**: `character_samples="0=Rook Sample"` (1 sample) esconde o
   seletor de vocação e cria todo char como **None**. Ver memória do projeto.
 - Fork: **`ReeCrema/KremeraSite`** (de slawkens/myaac). Remotes: `kremera` → o fork
