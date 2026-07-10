@@ -47,14 +47,21 @@ ALTER TABLE `players`
 -- ── 1) SETTINGS (grupo core) ─────────────────────────────────────────
 -- template travado no kremera (tema do handoff Fable); status do game pela rede docker; criacao
 -- classless (1 sample None) some o seletor de classe; pais padrao Brasil.
+-- CLASSLESS: 'vocations' com indice 0 (None) VAZIO => a pagina do personagem mostra a
+-- profissao em branco (nao existe vocacao no Kremera). 'highscores_ids_hidden' esconde do
+-- ranking o Rook Sample (id 1), que existe so como MOLDE de criacao de char (GMs group>=3 ja
+-- somem por padrao).
 DELETE FROM `myaac_settings` WHERE `name`='core' AND `key` IN
- ('template','template_allow_change','status_ip','character_samples','account_countries_most_popular');
+ ('template','template_allow_change','status_ip','character_samples','account_countries_most_popular',
+  'vocations','highscores_ids_hidden');
 INSERT INTO `myaac_settings` (`name`,`key`,`value`) VALUES
  ('core','template','kremera'),
  ('core','template_allow_change','false'),
  ('core','status_ip','crystal-server'),
  ('core','character_samples','0=Rook Sample'),
- ('core','account_countries_most_popular','br,pt,us,gb');
+ ('core','account_countries_most_popular','br,pt,us,gb'),
+ ('core','vocations',', Sorcerer, Druid, Paladin, Knight, Master Sorcerer, Elder Druid, Royal Paladin, Elite Knight'),
+ ('core','highscores_ids_hidden','0,1');
 
 -- ── 2) MENUS (template kathrine) ─────────────────────────────────────
 -- categorias: 1=News 2=Account 3=Community 5=Library 6=Shop
