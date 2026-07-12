@@ -153,10 +153,7 @@
 			<small style="font-weight:normal">[<a href="{{ getLink('online')}}?order=level_{{ order == 'level_asc' ? 'desc' : 'asc' }}">sort</a>]</small>
 			<img class="sortarrow" src="images/{{ order == 'level_asc' ? 'order_desc' : (order == 'level_desc' ? 'order_asc' : 'news/blank') }}.gif"/>
 		</td>
-		<td style="text-align:left;width:20%">Vocation&#160;&#160;
-			<small style="font-weight:normal">[<a href="{{ getLink('online')}}?order=vocation_{{ order == 'vocation_asc' ? 'desc' : 'asc' }}">sort</a>]</small>
-			<img class="sortarrow" src="images/{{ order == 'vocation_asc' ? 'order_desc' : (order == 'vocation_desc' ? 'order_asc' : 'news/blank') }}.gif"/>
-		</td>
+		{# Kremera: classless — sem coluna/sort de vocacao #}
 	</tr>
 
 	{% set i = 0 %}
@@ -176,7 +173,6 @@
 				{{ player.name|raw }}{{ player.skull|raw }}
 			</td>
 			<td>{{ player.level }}</td>
-			<td>{{ player.vocation }}</td>
 		</tr>
 	{% endfor %}
 </table>
