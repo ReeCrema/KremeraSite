@@ -44,6 +44,11 @@ ALTER TABLE `players`
   ADD COLUMN IF NOT EXISTS `hide` TINYINT(1) NOT NULL DEFAULT 0,
   ADD COLUMN IF NOT EXISTS `comment` VARCHAR(5000) NOT NULL DEFAULT '';
 
+-- myaac_account_actions.ip precisa ser INT UNSIGNED: o MyAAC grava ip2long(ip) no log de acoes
+-- (logAction), e IPs acima de 127.x (todo usuario real, ex.: 172.19.0.1 -> 2.887.254.017) estouram
+-- um INT com sinal (max 2.147.483.647) -> "Out of range value for column 'ip'" -> 500 ao CRIAR CONTA.
+ALTER TABLE `myaac_account_actions` MODIFY `ip` INT UNSIGNED NOT NULL DEFAULT 0;
+
 -- ── 1) SETTINGS (grupo core) ─────────────────────────────────────────
 -- template travado no kremera (tema do handoff Fable); status do game pela rede docker; criacao
 -- classless (1 sample None) some o seletor de classe; pais padrao Brasil.
