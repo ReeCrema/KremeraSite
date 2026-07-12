@@ -69,6 +69,10 @@ else
 {
 	switch($list)
 	{
+		case 'melee': // Kremera: Melee = skill nativa de espada (skill_sword)
+			$skill = POT::SKILL_SWORD;
+			break;
+
 		case 'fist':
 			$skill = POT::SKILL_FIST;
 			break;
@@ -118,6 +122,26 @@ else
 	}
 }
 
+// ── KREMERA: highscores classless. Skills CUSTOM (Healing + workers) vivem em player_storage
+//    (key = ST_VALUE 47100 + idx). Ver data-global/lib/kremera/skills.lua. As nativas (Melee/
+//    Distance/Shield/Magic/Fishing/Experience) usam o caminho padrao por coluna do `players`.
+$kremeraStorageKeys = array(
+	'healing' => 47105, 'mining' => 47107, 'lumber' => 47108, 'harvesting' => 47109,
+	'skinning' => 47110, 'cooking' => 47111, 'alchemy' => 47112, 'tailoring' => 47113,
+	'blacksmithing' => 47114, 'carpentry' => 47115,
+);
+$kremeraLabels = array(
+	'experience' => 'Experience', 'melee' => 'Melee', 'distance' => 'Distance', 'shield' => 'Shield',
+	'magic' => 'Magic', 'healing' => 'Healing', 'fishing' => 'Fishing', 'mining' => 'Mining',
+	'lumber' => 'Lumberjacking', 'harvesting' => 'Harvesting', 'skinning' => 'Skinning',
+	'cooking' => 'Cooking', 'alchemy' => 'Alchemy', 'tailoring' => 'Tailoring',
+	'blacksmithing' => 'Blacksmithing', 'carpentry' => 'Carpentry',
+);
+$kremeraStorage = isset($kremeraStorageKeys[$list]) ? $kremeraStorageKeys[$list] : null;
+if($kremeraStorage !== null) {
+	$skill = -1; // sentinela: nao e level/magic/native — ordena pelo valor do storage
+}
+
 $promotion = '';
 if($db->hasColumn('players', 'promotion'))
 	$promotion = ',players.promotion';
@@ -134,7 +158,7 @@ $limit = $configHighscoresPerPage + 1;
 
 $highscores = [];
 $needReCache = true;
-$cacheKey = 'highscores_' . $skill . '_' . $vocation . '_' . $page . '_' . $configHighscoresPerPage;
+$cacheKey = 'highscores_' . $list . '_' . $skill . '_' . $vocation . '_' . $page . '_' . $configHighscoresPerPage;
 
 $cache = Cache::getInstance();
 if ($cache->enabled() && $highscoresTTL > 0) {
@@ -164,7 +188,14 @@ $query
 	->orderByDesc('value');
 
 if (empty($highscores)) {
-	if ($skill >= POT::SKILL_FIRST && $skill <= POT::SKILL_LAST) { // skills
+	if ($kremeraStorage !== null) { // KREMERA: skill custom (Healing/workers) via player_storage
+		$query
+			->leftJoin('player_storage', function($j) use ($kremeraStorage) {
+				$j->on('player_storage.player_id', '=', 'players.id')
+				  ->where('player_storage.key', '=', $kremeraStorage);
+			})
+			->selectRaw('COALESCE(player_storage.value, 0) as value');
+	} else if ($skill >= POT::SKILL_FIRST && $skill <= POT::SKILL_LAST) { // skills
 		if ($db->hasColumn('players', 'skill_fist')) {// tfs 1.0
 			$skill_ids = array(
 				POT::SKILL_FIST => 'skill_fist',
@@ -290,17 +321,8 @@ if($show_link_to_next_page) {
 
 $baseLink = getLink('highscores') . '/' . $list . ($vocation !== 'all' ? '/' . $vocation : '') . '/';
 
-$types = array(
-	'experience' => 'Experience',
-	'magic' => 'Magic',
-	'shield' => 'Shielding',
-	'distance' => 'Distance',
-	'club' => 'Club',
-	'sword' => 'Sword',
-	'axe' => 'Axe',
-	'fist' => 'Fist',
-	'fishing' => 'Fishing',
-);
+// KREMERA: menu de categorias = as skills reais do jogo (classless), na ordem dos 2 pools.
+$types = $kremeraLabels;
 
 if(setting('core.highscores_frags')) {
 	$types['frags'] = 'Frags';
@@ -317,7 +339,7 @@ $twig->display('highscores.html.twig', [
 	'highscores' => $highscores,
 	'list' => $list,
 	'skill' => $skill,
-	'skillName' => ($skill == SKILL_FRAGS ? 'Frags' : ($skill == SKILL_BALANCE ? 'Balance' : getSkillName($skill))),
+	'skillName' => (isset($kremeraLabels[$list]) ? $kremeraLabels[$list] : ($skill == SKILL_FRAGS ? 'Frags' : ($skill == SKILL_BALANCE ? 'Balance' : getSkillName($skill)))),
 	'levelName' => ($skill != SKILL_FRAGS && $skill != SKILL_BALANCE ? 'Level' : ($skill == SKILL_BALANCE ? 'Balance' : 'Frags')),
 	'vocation' => $vocation !== 'all' ? $vocation :  null,
 	'vocationId' => $vocationId,

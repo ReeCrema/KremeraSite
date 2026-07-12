@@ -54,10 +54,13 @@ ALTER TABLE `players`
 -- 'characters_magic_level'=0 tira a linha "Magic Level" do topo (Magic ja aparece no pool de
 -- Combate do painel de skills classless). Pagina ONLINE (classless/sem PvP por ora):
 -- 'online_vocations'=0 (sem estatistica de vocacao) e 'online_skulls'=0 (sem legenda de frags/skull).
+-- HIGHSCORES: 'highscores_vocation'=0 (sem vocacao sob o nome) e 'highscores_vocation_box'=0
+-- (sem a caixa "Choose a vocation"). As categorias de skill viraram as reais do Kremera no
+-- system/pages/highscores.php (Melee/Distance/Shield/Magic/Healing + workers via player_storage).
 DELETE FROM `myaac_settings` WHERE `name`='core' AND `key` IN
  ('template','template_allow_change','status_ip','character_samples','account_countries_most_popular',
   'vocations','highscores_ids_hidden','signature_enabled','characters_magic_level',
-  'online_vocations','online_skulls');
+  'online_vocations','online_skulls','highscores_vocation','highscores_vocation_box');
 INSERT INTO `myaac_settings` (`name`,`key`,`value`) VALUES
  ('core','template','kremera'),
  ('core','template_allow_change','false'),
@@ -69,7 +72,9 @@ INSERT INTO `myaac_settings` (`name`,`key`,`value`) VALUES
  ('core','signature_enabled','0'),
  ('core','characters_magic_level','0'),
  ('core','online_vocations','0'),
- ('core','online_skulls','0');
+ ('core','online_skulls','0'),
+ ('core','highscores_vocation','0'),
+ ('core','highscores_vocation_box','0');
 
 -- ── 2) MENUS (template kathrine) ─────────────────────────────────────
 -- categorias: 1=News 2=Account 3=Community 5=Library 6=Shop
