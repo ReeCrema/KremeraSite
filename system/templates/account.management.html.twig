@@ -1,30 +1,5 @@
-<style type="text/css">
-	#account-manage {
-		width: 100%;
-		margin: auto;
-		padding: 10px;
-	}
-	div#one {
-		width: 150px;
-		float: left;
-	}
-	div#two {
-		margin-left: 150px;
-		padding-left: 10px;
-	}
-
-	.vertical-menu a {
-		background-color: {{ config.lightborder }}; /* Grey background color */
-		color: black; /* Black text color */
-		display: block; /* Make the links appear below each other */
-		padding: 12px; /* Add some padding */
-		text-decoration: none; /* Remove underline from links */
-	}
-
-	.vertical-menu a:hover {
-		background-color: {{ config.darkborder }}; /* Dark grey background on mouse-over */
-	}
-</style>
+{# Kremera: redesign do portal (Fable). Estrutura em cards + page-head + callout + chips;
+   toda a logica Twig (forms/csrf/includes/hooks/loops) preservada. CSS em templates/kremera/style.css. #}
 {% set menus = {
 	'Create Character': 'account/characters/create','Delete Character': 'account/characters/delete',
 	'Change Info': 'account/change-info', 'Change Password': 'account/change-password', 'Change Email': 'account/change-email'
@@ -32,7 +7,7 @@
 <div id="account-manage">
 	<div id="one">
 		<div class="vertical-menu">
-			<a href="{{ getLink('account/manage') }}">My Account</a>
+			<a class="active" href="{{ getLink('account/manage') }}">My Account</a>
 			{% if recovery_key is empty %}
 				<a href="{{ getLink('account/register') }}">Register Account</a>
 			{% endif %}
@@ -49,185 +24,152 @@
 		</div>
 	</div>
 	<div id="two">
-		<h1>My account</h1>
-		<p>Welcome to your account page, {{ account }}<br>
-			{% if config.lua.freePremium %}
-			You have unlimited Premium Account.
-			{% else %}
-				{% set premiumDays = account_logged.getPremDays() %}
-				{% if premiumDays == 0 %}
-				You don't have Premium Account
-				{% else %}
-				You have {{ premiumDays }} days remaining Premium Account.
-				{% endif %}
-			{% endif %}
-		</p>
 
-		{# if account dont have recovery key show hint #}
+		<div class="page-head">
+			<div>
+				<span class="eyebrow">Account</span>
+				<h1>My account</h1>
+				<p class="sub">Welcome to your account page, <b>{{ account }}</b>.</p>
+			</div>
+			<div class="meta">
+				{% if config.lua.freePremium %}
+					<span class="chip chip-gold">Premium</span>
+				{% else %}
+					{% set premiumDays = account_logged.getPremDays() %}
+					{% if premiumDays == 0 %}
+						<span class="chip chip-dim">Free Account</span>
+					{% else %}
+						<span class="chip chip-gold-o">{{ premiumDays }} days Premium</span>
+					{% endif %}
+				{% endif %}
+			</div>
+		</div>
+
 		{% if recovery_key is empty %}
-		<div style="text-align:center">
-			You can register your account for increased protection. Click on "Register Account" and get your free recovery key today!<br/>
+		<div class="callout">
+			<p>You can register your account for increased protection. Register and get your free <b>recovery key</b> today!</p>
 			<form action="{{ getLink('account/register') }}" method="post">
 				{{ csrf() }}
 				{% set button_name = 'Register Account' %}
 				{% include('buttons.base.html.twig') %}
 			</form>
 		</div>
-		<br/>
 		{% endif %}
 
 		{% if email_request %}
-			<div style="text-align:center">
-				A request has been submitted to change the email address of this account to <b>{{ email_new }}</b>. After <b>{{ email_new_time|date("j F Y, G:i:s") }}</b> you can accept the new email address and finish the process. Please cancel the request if you do not want your email address to be changed! Also cancel the request if you have no access to the new email address!
-
+		<div class="callout">
+			<p>A request has been submitted to change the email address of this account to <b>{{ email_new }}</b>. After <b>{{ email_new_time|date("j F Y, G:i:s") }}</b> you can accept the new email address and finish the process. Cancel the request if you do not want your email address to be changed!</p>
+			<div class="form-ghost">
 				<form action="{{ getLink('account/change-email') }}" method="post">
 					{{ csrf() }}
 					{% set button_name = 'Edit' %}
 					{% include('buttons.base.html.twig') %}
 				</form>
 			</div>
-		<br/><br/>
+		</div>
 		{% endif %}
+
 		{{ hook('HOOK_ACCOUNT_MANAGE_BEFORE_GENERAL_INFORMATION') }}
 		<a name="General+Information"></a>
-		<h2>General Information</h2>
-		<table width="100%">
-			{% if not config.account_login_by_email or config.account_login_by_email_fallback %}
-			<tr style="background-color: {{ config.lightborder }};" >
-				<td style="width: 90px;">Account {% if constant('USE_ACCOUNT_NAME') %}Name{% else %}Number{% endif %}:</td>
-				<td>{{ account }}</td>
-			</tr>
-			{% endif %}
-			<tr style="background-color: {{ config.darkborder }};" >
-				<td style="width: 90px;">Email Address:</td>
-				<td>{{ account_email }}{{ email_change|raw }}
-					<form action="{{ getLink('account/change-email') }}" method="post">
-						{{ csrf() }}
-						{% set button_name = 'Change Email' %}
-						{% include('buttons.base.html.twig') %}
-					</form>
-				</td>
-			</tr>
-			<tr style="background-color: {{ config.lightborder }};" >
-				<td>Created:</td>
-				<td>{{ account_created|date("j F Y, G:i:s") }}</td>
-			</tr>
-			<tr style="background-color: {{ config.darkborder }};" >
-				<td>Last Login:</td>
-				<td>{{ account_logged.getCustomField('web_lastlogin')|date("j F Y, G:i:s") }}</td>
-			</tr>
-			{% autoescape false %}
-			<tr style="background-color: {{ config.lightborder }};" >
-				<td>Account Status:</td>
-				<td>{{ account_status }}</td>
-			</tr>
-			<tr style="background-color: {{ config.darkborder }};" >
-				<td>Registered:</td>
-				<td>{{ account_registered }}</td>
-			</tr>
-			{% endautoescape %}
-		</table>
-		<br/>
+		<div class="card">
+			<div class="card-h"><h2>General Information</h2></div>
+			<table width="100%">
+				{% if not config.account_login_by_email or config.account_login_by_email_fallback %}
+				<tr><td class="LabelV150">Account {% if constant('USE_ACCOUNT_NAME') %}Name{% else %}Number{% endif %}</td><td>{{ account }}</td></tr>
+				{% endif %}
+				<tr>
+					<td class="LabelV150">Email Address</td>
+					<td>{{ account_email }}{{ email_change|raw }}
+						<span class="form-ghost">
+							<form action="{{ getLink('account/change-email') }}" method="post">
+								{{ csrf() }}
+								{% set button_name = 'Change Email' %}
+								{% include('buttons.base.html.twig') %}
+							</form>
+						</span>
+					</td>
+				</tr>
+				<tr><td class="LabelV150">Created</td><td>{{ account_created|date("j F Y, G:i:s") }}</td></tr>
+				<tr><td class="LabelV150">Last Login</td><td>{{ account_logged.getCustomField('web_lastlogin')|date("j F Y, G:i:s") }}</td></tr>
+				{% autoescape false %}
+				<tr><td class="LabelV150">Account Status</td><td>{{ account_status }}</td></tr>
+				<tr><td class="LabelV150">Registered</td><td>{{ account_registered }}</td></tr>
+				{% endautoescape %}
+			</table>
+		</div>
+
 		{{ hook('HOOK_ACCOUNT_MANAGE_BEFORE_PUBLIC_INFORMATION') }}
 		<a name="Public+Information"></a>
-		<h2>Public Information</h2>
-		<table width="100%">
-			<tr style="background-color: {{ config.lightborder }};" >
-				<td style="width: 80px;">Real name:</td>
-				<td>{{ account_rlname }}</td>
-			</tr>
-			<tr style="background-color: {{ config.darkborder }};" >
-				<td style="width: 80px;">Location:</td>
-				<td >{{ account_location }}</td>
-			</tr>
-		</table>
-		<form action="{{ getLink('account/change-info') }}" method="post">
-			{{ csrf() }}
-			{% set button_name = 'Change Info' %}
-			{% include('buttons.base.html.twig') %}
-		</form>
-		<br/>
+		<div class="card">
+			<div class="card-h">
+				<h2>Public Information</h2>
+				<div class="form-ghost">
+					<form action="{{ getLink('account/change-info') }}" method="post">
+						{{ csrf() }}
+						{% set button_name = 'Change Info' %}
+						{% include('buttons.base.html.twig') %}
+					</form>
+				</div>
+			</div>
+			<table width="100%">
+				<tr><td class="LabelV150">Real name</td><td>{% if account_rlname %}{{ account_rlname }}{% else %}<span class="empty">—</span>{% endif %}</td></tr>
+				<tr><td class="LabelV150">Location</td><td>{% if account_location %}{{ account_location }}{% else %}<span class="empty">—</span>{% endif %}</td></tr>
+			</table>
+		</div>
+
 		{{ hook('HOOK_ACCOUNT_MANAGE_BEFORE_ACCOUNT_LOGS') }}
-		<a name="Account+Logs" ></a>
-		<h2>Account Logs</h2>
-		<table>
-			<tr bgcolor="{{ config.vdarkborder }}" class="white">
-				<th>Action</th><th>Date</th><th>IP</th>
-			</tr>
-			{% autoescape false %}
-				{% set i = 0 %}
-				{% for action in actions %}
-					{% set i = i + 1 %}
-					<tr style="background-color: {{ getStyle(i) }}">
-						<td>{{ action.action }}</td>
-						<td>{{ action.date|date("jS F Y H:i:s") }}</td>
-						<td>{{ action.ip }}</td>
+		<a name="Account+Logs"></a>
+		<div class="card card-data">
+			<div class="card-h"><h2>Account Logs</h2></div>
+			<table>
+				<tr><th class="white">Action</th><th class="white">Date</th><th class="white num">IP</th></tr>
+				{% autoescape false %}
+					{% for action in actions %}
+						<tr>
+							<td>{{ action.action }}</td>
+							<td>{{ action.date|date("jS F Y H:i:s") }}</td>
+							<td class="num">{{ action.ip }}</td>
+						</tr>
+					{% endfor %}
+				{% endautoescape %}
+			</table>
+		</div>
+
+		{{ hook('HOOK_ACCOUNT_MANAGE_BEFORE_CHARACTERS') }}
+		<a name="Characters"></a>
+		<div class="card card-data">
+			<div class="card-h"><h2>Character List</h2><span class="hint">{{ players|length }} character{{ players|length != 1 ? 's' : '' }}</span></div>
+			<table>
+				<tr><th>Name</th><th class="num">Level</th><th>Town</th><th>Last login</th><th>Status</th><th>Hide</th><th style="text-align:right">Edit</th></tr>
+				{% for player in players %}
+					<tr>
+						<td><a href="{{ getLink('characters/' ~ player.getName()|urlencode) }}">{{ player.getName() }}</a>{% if player.isDeleted() %} <span class="chip chip-red">Deleted</span>{% endif %}</td>
+						<td class="num">{{ player.getLevel() }}</td>
+						<td>{{ config.towns[player.getTownId()] }}</td>
+						<td>{% if player.getLastLogin() > 0 %}{{ player.getLastLogin|date('d F Y (H:i)') }}{% else %}Never.{% endif %}</td>
+						<td>{% if player.isOnline() %}<span class="chip chip-rune"><i class="dot"></i>Online</span>{% else %}<span class="chip chip-red"><i class="dot"></i>Offline</span>{% endif %}</td>
+						<td>{% if player.isHidden() %}Hidden{% else %}Visible{% endif %}</td>
+						<td style="text-align:right">{% if not player.isDeleted() %}<a class="btn btn-ghost btn-sm" href="{{ getLink('account/characters/change-comment?name=' ~ player.getName()|urlencode) }}">Edit</a>{% endif %}</td>
 					</tr>
 				{% endfor %}
-			{% endautoescape %}
-		</table>
-		<br/>
-		{{ hook('HOOK_ACCOUNT_MANAGE_BEFORE_CHARACTERS') }}
-		<a name="Characters" ></a>
-		<h2>Character list: {{ players|length }} characters.</h2>
-		<table>
-			<tr bgcolor="{{ config.vdarkborder }}" class="white">
-				<th>Name</th><th>Level</th><th>Town</th><th>Last login</th><th>Status</th><th>Hide</th><th>Edit</th>
-			</tr>
-			{% set i = 0 %}
-			{% for player in players %}
-				{% set i = i + 1 %}
-				<tr bgcolor="{{ getStyle(i) }}">
-					<td>
-						<a href="{{ getLink('characters/' ~ player.getName()|urlencode) }}">{{ player.getName() }}</a>{% if player.isDeleted() %}<span style="color: red"><b> [ DELETED ] </b></span>{% endif %}
-					</td>
-					<td>{{ player.getLevel() }}</td>
-					<td>{{ config.towns[player.getTownId()] }}</td>
-					<td>{% if player.getLastLogin() > 0 %}{{ player.getLastLogin|date('d F Y (H:i)') }}{% else %}Never.{% endif %}</td>
-					<td>{% if player.isOnline() %}<span style="color: green">ONLINE</span>{% else %}<span style="color: red">Offline</span>{% endif %}</td>
-					<td>{% if player.isHidden() %}Hidden{% else %}Visible{% endif %}</td>
-					<td>{% if not player.isDeleted() %}[<a href="{{ getLink('account/characters/change-comment?name=' ~ player.getName()|urlencode) }}" >Edit</a>]{% endif %}</td>
-				</tr>
-			{% endfor %}
-		</table>
-		<br/>
-		<table>
-			<tr>
-				<td>
-					<form action="{{ getLink('account/characters/create') }}" method="post" >
-						{{ csrf() }}
-						{% set button_name = 'Create Character' %}
-						{% include('buttons.base.html.twig') %}
-					</form>
-				</td>
-				{% if setting('core.account_change_character_name') %}
-				<td>
-					<form action="{{ getLink('account/characters/change-name') }}" method="post" >
-						{{ csrf() }}
-						{% set button_name = 'Change Name' %}
-						{% include('buttons.base.html.twig') %}
-					</form>
-				</td>
-				{% endif %}
-				{% if setting('core.account_change_character_sex') %}
-				<td>
-					<form action="{{ getLink('account/characters/change-sex') }}" method="post" >
-						{{ csrf() }}
-						{% set button_name = 'Change Sex' %}
-						{% include('buttons.base.html.twig') %}
-					</form>
-				</td>
-				{% endif %}
-				<td>
-					<form action="{{ getLink('account/characters/delete') }}" method="post">
-						{{ csrf() }}
-						{% set button_name = 'Delete Character' %}
-						{% include('buttons.base.html.twig') %}
-					</form>
-				</td>
-			</tr>
-		</table>
-		<br/>
+			</table>
+		</div>
+
+		<div class="actions">
+			<form action="{{ getLink('account/characters/create') }}" method="post">
+				{{ csrf() }}
+				{% set button_name = 'Create Character' %}
+				{% include('buttons.base.html.twig') %}
+			</form>
+			{% if setting('core.account_change_character_name') %}
+			<div class="form-ghost"><form action="{{ getLink('account/characters/change-name') }}" method="post">{{ csrf() }}{% set button_name = 'Change Name' %}{% include('buttons.base.html.twig') %}</form></div>
+			{% endif %}
+			{% if setting('core.account_change_character_sex') %}
+			<div class="form-ghost"><form action="{{ getLink('account/characters/change-sex') }}" method="post">{{ csrf() }}{% set button_name = 'Change Sex' %}{% include('buttons.base.html.twig') %}</form></div>
+			{% endif %}
+			<div class="form-danger"><form action="{{ getLink('account/characters/delete') }}" method="post">{{ csrf() }}{% set button_name = 'Delete Character' %}{% include('buttons.base.html.twig') %}</form></div>
+		</div>
+
 		{{ hook('HOOK_ACCOUNT_MANAGE_AFTER_CHARACTERS') }}
 	</div>
 </div>

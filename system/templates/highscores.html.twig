@@ -1,126 +1,67 @@
-<table border="0" cellpadding="0" cellspacing="0" width="100%">
-	<tr>
-		<td style="width: 17px"></td>
-		<td>
-			<div style="text-align:center"><h2>Ranking for {{ skillName }}{% if vocation is not null %} ({{ vocation }}){% endif %} on {{ config.lua.serverName }}</h2></div><br/>
-			<table border="0" cellpadding="4" cellspacing="1" width="100%">
-				<tr>
-					<td>Filters</td>
-					<td>
-						<label for="skillFilter">Choose a Skill</label>
-						<select onchange="location = this.value;" id="skillFilter">
-							{% for link, name in types %}
-								<option value="{{ getLink('highscores') }}/{{ link|urlencode }}{% if vocation is not null %}/{{ vocation|lower|urlencode }}{% endif %}" class="size_xs" {% if list is not null and list == link %}selected{% endif %}>{{ name }}</option>
-							{% endfor %}
-						</select>
-					</td>
-					{# Kremera: classless — sem filtro de vocacao #}
-				</tr>
-			</table>
-			<table border="0" cellpadding="4" cellspacing="1" width="100%">
-				<tr bgcolor="{{ config.vdarkborder }}">
-					{% if setting('core.account_country') %}
-					<td style="width: 11px" class="white">#</td>
-					{% endif %}
+{# Kremera: redesign do portal (Fable). page-head + toolbar + layout 2 colunas (.hs-layout).
+   Ranking em .card-data com .rank / .vbar / top1-3; lista de skills lateral. Logica preservada.
+   Skills sao 0-100 => barra proporcional; Experience (SKILL__LEVEL) mostra so o numero. #}
+<div class="page-head">
+	<div>
+		<span class="eyebrow">Rankings</span>
+		<h2>Ranking for {{ skillName }} <span>on {{ config.lua.serverName }}</span></h2>
+	</div>
+	<div class="meta">
+		{% if skill == constant('POT::SKILL__LEVEL') %}<span class="chip chip-gold-o">Level</span>{% else %}<span class="chip chip-gold-o">Skill · 0–100</span>{% endif %}
+	</div>
+</div>
 
-					<td style="width: 10%" class="white"><b>Rank</b></td>
+<div class="card">
+	<div class="card-b toolbar">
+		<label for="skillFilter">Choose a Skill</label>
+		<select onchange="location = this.value;" id="skillFilter">
+			{% for link, name in types %}
+				<option value="{{ getLink('highscores') }}/{{ link|urlencode }}" {% if list is not null and list == link %}selected{% endif %}>{{ name }}</option>
+			{% endfor %}
+		</select>
+	</div>
+</div>
 
-					{% if setting('core.highscores_outfit') %}
-					<td class="white"><b>Outfit</b></td>
-					{% endif %}
-
-					<td width="75%" class="white"><b>Name</b></td>
-
-					<td width="15%" class="white"><b>{{ levelName }}</b></td>
-
-					{% if skill == constant('POT::SKILL__LEVEL') %}
-					<td class="white"><b>Points</b></td>
-					{% endif %}
-				</tr>
-
+<table class="hs-layout"><tr>
+	<td class="hs-main">
+		<div class="card card-data">
+			<div class="card-h"><h2>Classification</h2>{% if totalResults %}<span class="hint">{{ totalResults }} player{{ totalResults != 1 ? 's' : '' }}</span>{% endif %}</div>
+			<table>
+				<tr><th style="width:64px">Rank</th><th>Name</th><th class="num" style="width:190px">{{ skillName }}</th></tr>
 				{% if highscores|length < 1 %}
-				<tr bgcolor="{{ config('darkborder') }}"><td colspan="100%">No records yet.</td></tr>
+				<tr><td colspan="3">No records yet.</td></tr>
 				{% else %}
-					{% set row = 0 %}
 					{% for player in highscores %}
-					<tr bgcolor="{{ getStyle(row) }}">
-						{% set row = row + 1 %}
-
-						{% if setting('core.account_country') %}
-						<td>{{ player.flag|raw }}</td>
-						{% endif %}
-
-						<td>{{ player.rank }}.</td>
-
-						{% if setting('core.highscores_outfit') %}
-						<td>{{ player.outfit|raw }}</td>
-						{% endif %}
-
-						<td>
-							<a href="{{ player.link }}">
-								<span {% if setting('core.highscores_online_status') %}style="color: {% if player.online > 0 %}green{% else %}red{% endif %}"{% endif %}>{{ player.name }}</span>
-							</a>
-							{% if setting('core.highscores_vocation') %}
-							<br/><small>{{ player.vocation }}</small>
+					<tr class="{% if player.rank == 1 %}top1{% elseif player.rank == 2 %}top2{% elseif player.rank == 3 %}top3{% endif %}">
+						<td class="rank">{{ player.rank }}.</td>
+						<td><a href="{{ player.link }}"><span {% if setting('core.highscores_online_status') %}style="color: {% if player.online > 0 %}var(--rune-glow){% else %}var(--parchment){% endif %}"{% endif %}>{{ player.name }}</span></a></td>
+						<td class="num">
+							{% if skill == constant('POT::SKILL__LEVEL') %}
+								<span class="vnum">{{ player.value }}</span>
+							{% else %}
+								<span class="vbar"><i style="width:{{ player.value > 100 ? 100 : player.value }}%"></i></span><span class="vnum">{{ player.value }}</span>
 							{% endif %}
 						</td>
-
-						<td>
-							<div style="text-align:center">{{ player.value }}</div>
-						</td>
-
-						{% if skill == constant('POT::SKILL__LEVEL') %}
-							<td><div style="text-align:center">{{ player.experience }}</div></td>
-						{% endif %}
 					</tr>
 					{% endfor %}
 				{% endif %}
 			</table>
-			<table border="0" cellpadding="4" cellspacing="1" width="100%">
-				{% if linkPreviousPage|length > 0 %}
-					<tr><td style="width: 100%" align="right" valign="bottom"><a href="{{ linkPreviousPage }}" class="size_xxs">Previous Page</a></td></tr>
-				{% endif %}
-
-				{% if linkNextPage|length > 0 %}
-					<tr><td style="width: 100%" align="right" valign="bottom"><a href="{{ linkNextPage }}" class="size_xxs">Next Page</a></td></tr>
-				{% endif %}
-			</table>
-		</td>
-		{% if setting('core.highscores_skills_box') or setting('core.highscores_vocation_box') %}
-		<td width="5%"></td>
-		<td width="15%" valign="top" align="right">
-			{% if setting('core.highscores_skills_box') %}
-			<table style="border: 0; width: 100%" cellpadding="4" cellspacing="1">
-				<tr bgcolor="{{ config.vdarkborder }}">
-					<td class="white"><B>Choose a skill</B></TD>
-				</tr>
-				<tr bgcolor="{{ config.lightborder }}">
-					<td>
-						{% for link, name in types %}
-							<a href="{{ getLink('highscores') }}/{{ link|urlencode }}{% if vocation is not null %}/{{ vocation|urlencode }}{% endif %}" class="size_xs">{{ name }}</a><br/>
-						{% endfor %}
-					</td>
-				</tr>
-			</table>
-			<br/>
+			{% if linkPreviousPage|length > 0 or linkNextPage|length > 0 %}
+			<div class="pager">
+				{% if linkPreviousPage|length > 0 %}<a class="btn btn-ghost btn-sm" href="{{ linkPreviousPage }}">‹ Previous Page</a>{% endif %}
+				{% if linkNextPage|length > 0 %}<a class="btn btn-ghost btn-sm" href="{{ linkNextPage }}">Next Page ›</a>{% endif %}
+			</div>
 			{% endif %}
-			{% if setting('core.highscores_vocation_box') %}
-			<table border="0" width="100%" cellpadding="4" cellspacing="1">
-				<tr bgcolor="{{ config.vdarkborder }}">
-					<td class="white"><b>Choose a vocation</b></td>
-				</tr>
-				<tr bgcolor="{{ config.lightborder }}">
-					<td>
-						<a href="{{ getLink('highscores') }}/{{ list|urlencode }}" class="size_xs">[ALL]</a><br/>
-						{% for i in 0..config.vocations_amount %}
-							<a href="{{ getLink('highscores') }}/{{ list|urlencode }}/{{ config.vocations[i]|lower|urlencode }}" class="size_xs">{{ config.vocations[i]}}</a><br/>
-						{% endfor %}
-					</td>
-				</tr>
-			</table>
-			{% endif %}
-		</td>
-		<td style="width: 18px"></td>
-		{% endif %}
-	</tr>
-</table>
+		</div>
+	</td>
+	<td class="hs-side">
+		<div class="card">
+			<div class="card-h"><h3>Choose a skill</h3></div>
+			<div class="skill-list">
+				{% for link, name in types %}
+					<a href="{{ getLink('highscores') }}/{{ link|urlencode }}" {% if list == link %}class="active"{% endif %}>{{ name }}</a>
+				{% endfor %}
+			</div>
+		</div>
+	</td>
+</tr></table>

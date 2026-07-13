@@ -1,177 +1,68 @@
+{# Kremera: redesign do portal (Fable). page-head + World Information (.world-info -> tiles via CSS)
+   + lista de players em card. Classless: sem estatistica de vocacao, sem legenda de frags, sem
+   coluna de vocacao/outfit/pais. Logica (status/afk/record/pvp/sort) preservada. #}
 {% set onlineTTL = setting('core.online_cache_ttl') %}
-{% if onlineTTL > 0 and cache.enabled() %}
-<small>*Note: Online List is updated every {{ onlineTTL > 1 ? ' ' ~ onlineTTL : '' }} minute{{ onlineTTL > 1 ? 's' : '' }}.</small>
-<br/>
-{% endif %}
+<div class="page-head">
+	<div>
+		<span class="eyebrow">World</span>
+		<h1>Who is online</h1>
+		{% if onlineTTL > 0 and cache.enabled() %}<p class="sub">The list is updated every {{ onlineTTL > 1 ? onlineTTL ~ ' minutes' : 'minute' }}.</p>{% endif %}
+	</div>
+	<div class="meta">
+		{% if status.online %}<span class="chip chip-rune"><i class="dot"></i>Online</span>{% else %}<span class="chip chip-red"><i class="dot"></i>Offline</span>{% endif %}
+	</div>
+</div>
 
-<br/>
-
-{# vocation statistics #}
-{% if setting('core.online_vocations') %}
-
-	{% set title = 'Vocation statistics' %}
-	{% set tableClass = 'Table3' %}
-	{% set background = config('darkborder') %}
-	{% set content %}
-
-	{% if setting('core.online_vocations_images') %}
-	<table width="200" cellspacing="1" cellpadding="0" border="0" align="center" class="myaac-table">
-		<thead>
-		<tr>
-			<td class="white" style="text-align: center;"><strong>Sorcerers</strong></td>
-			<td class="white" style="text-align: center;"><strong>Druids</strong></td>
-			<td class="white" style="text-align: center;"><strong>Paladins</strong></td>
-			<td class="white" style="text-align: center;"><strong>Knights</strong></td>
-		</tr>
-		</thead>
-
-		<tr>
-			<td><img src="images/sorcerer.png" /></td>
-			<td><img src="images/druid.png" /></td>
-			<td><img src="images/paladin.png" /></td>
-			<td><img src="images/knight.png" /></td>
-		</tr>
-
-		<tr>
-			<td style="text-align: center;">{{ vocs[1] }}</td>
-			<td style="text-align: center;">{{ vocs[2] }}</td>
-			<td style="text-align: center;">{{ vocs[3] }}</td>
-			<td style="text-align: center;">{{ vocs[4] }}</td>
-		</tr>
-	</table>
-	<div style="text-align: center;">&nbsp;</div>
-	{% else %}
-	<table border="0" cellspacing="1" cellpadding="4" width="100%" class="myaac-table">
-		{% for i in 1..config.vocations_amount %}
-		<tr>
-			<td width="25%">{{ config.vocations[i] }}</td>
-			<td width="75%">{{ vocs[i] }}</td>
-		</tr>
-		{% endfor %}
-	</table>
-	<br/>
-	{% endif %}
-
-{% endset %}
-{% include 'tables.headline.html.twig' %}
-
-{% endif %}
-
-<br/>
-
-{# show skulls #}
-{% if setting('core.online_skulls') %}
-<table width="100%" cellspacing="1" class="myaac-table">
+<h2 class="sec-title">World Information</h2>
+<table class="world-info">
 	<tr>
-		<td align="center">
-			<img src="images/white_skull.gif"/> - 1 - 6 Frags<br/>
-			<img src="images/red_skull.gif"/> - 6+ Frags or Red Skull<br/>
-			<img src="images/black_skull.gif"/> - 10+ Frags or Black Skull
-		</td>
-	</tr>
-</table>
-{% endif %}
-
-<br/>
-
-{% set title = 'World Information' %}
-{% set tableClass = 'Table3' %}
-{% set background = config('darkborder') %}
-{% set content %}
-<table width="100%">
-	<tr>
-		<td class="LabelV150"><b>Status:</b></td>
-		<td>{% if not status.online %}Offline{% else %}Online{% endif %}</td>
+		<td class="LabelV150"><b>Status</b></td>
+		<td>{% if not status.online %}<span style="color:var(--red-t)">Offline</span>{% else %}<span style="color:var(--rune-glow)">Online</span>{% endif %}</td>
 	</tr>
 	<tr>
-		<td class="LabelV150"><b>Players Online:</b></td>
+		<td class="LabelV150"><b>Players Online</b></td>
 		<td>
 			{% if setting('core.online_afk') %}
 				{% set players_count = players|length %}
 				{% set afk = players_count - status.players %}
-				{% if afk < 0 %}
-					{% set players_count = players_count + afk|abs %}
-					{% set afk = 0 %}
-				{% endif %}
-				Currently there are <b>{{ status.players }}</b> active and <b>{{ afk }}</b> AFK players.<br/>
-				Total number of players: <b>{{ players_count }}</b>.<br/>
+				{% if afk < 0 %}{% set players_count = players_count + afk|abs %}{% set afk = 0 %}{% endif %}
+				<b>{{ status.players }}</b> active · <b>{{ afk }}</b> AFK · <b>{{ players_count }}</b> total
 			{% else %}
 				{{ players|length }}
 			{% endif %}
 		</td>
 	</tr>
-
 	{% if setting('core.online_record') and record|length > 0 %}
-	<tr>
-		<td class="LabelV150"><b>Online Record:</b></td>
-		<td>
-			{{ record }}
-		</td>
-	</tr>
+	<tr><td class="LabelV150"><b>Online Record</b></td><td>{{ record }}</td></tr>
 	{% endif %}
-
-	{# Kremera: linha "Location Datacenter" removida (era um placeholder estatico do MyAAC) #}
 	<tr>
-		<td class="LabelV150"><b>PvP Type:</b></td>
+		<td class="LabelV150"><b>PvP Type</b></td>
 		<td>
 			{% set worldType = config('lua')['worldType']|lower %}
-			{% if worldType in ['pvp','2','normal','open','openpvp'] %}
-			Open PvP
-			{% elseif worldType in ['no-pvp','nopvp','non-pvp','nonpvp','1','safe','optional','optionalpvp'] %}
-			Optional PvP
-			{% elseif worldType in ['pvp-enforced','pvpenforced','pvp-enfo','pvpenfo','pvpe','enforced','enfo','3','war','hardcore','hardcorepvp'] %}
-			Hardcore PvP
+			{% if worldType in ['pvp','2','normal','open','openpvp'] %}Open PvP
+			{% elseif worldType in ['no-pvp','nopvp','non-pvp','nonpvp','1','safe','optional','optionalpvp'] %}Optional PvP
+			{% elseif worldType in ['pvp-enforced','pvpenforced','pvp-enfo','pvpenfo','pvpe','enforced','enfo','3','war','hardcore','hardcorepvp'] %}Hardcore PvP
 			{% endif %}
 		</td>
 	</tr>
 </table>
-{% endset %}
-{% include 'tables.headline.html.twig' %}
-<br/>
-<br/>
 
-{% set title = 'Players Online' %}
-{% set tableClass = 'Table2' %}
-{% set content %}
-<table width="100%" class="myaac-table">
-
-	<tr class="LabelH" style="z-index: 20;">
-		{% if setting('core.account_country') %}
-			<td style="width: 6px;"><a href="{{ getLink('online')}}?order=country_{{ order == 'country_asc' ? 'desc' : 'asc' }}">#&#160;&#160;</a>
-			</td>
-		{% endif %}
-		{% if setting('core.online_outfit') %}
-			<td style="width: 32px;"><b>Outfit</b></td>
-		{% endif %}
-		<td style="text-align:left;">Name&#160;&#160;
-			<small style="font-weight:normal">[<a href="{{ getLink('online')}}?order=name_{{ order == 'name_asc' ? 'desc' : 'asc' }}">sort</a>]</small>
-			<img class="sortarrow" src="images/{{ order == 'name_asc' ? 'order_desc' : (order == 'name_desc' ? 'order_asc' : 'news/blank') }}.gif"/></td>
-		<td style="text-align:left;width:10%">Level&#160;&#160;
-			<small style="font-weight:normal">[<a href="{{ getLink('online')}}?order=level_{{ order == 'level_asc' ? 'desc' : 'asc' }}">sort</a>]</small>
-			<img class="sortarrow" src="images/{{ order == 'level_asc' ? 'order_desc' : (order == 'level_desc' ? 'order_asc' : 'news/blank') }}.gif"/>
-		</td>
-		{# Kremera: classless — sem coluna/sort de vocacao #}
-	</tr>
-
-	{% set i = 0 %}
-	{% for player in players %}
-		{% set i = i + 1 %}
-
-		<tr style="text-align: right; height: 40px;">
-			{% if setting('core.account_country') %}
-				<td>{{ player.country_image|raw }}</td>
-			{% endif %}
-
-			{% if setting('core.online_outfit') %}
-				<td><img style="position:absolute;margin-top:-48px;margin-left:-70px;" src="{{ player.outfit }}" alt="player outfit"/></td>
-			{% endif %}
-
-			<td style="text-align:left">
-				{{ player.name|raw }}{{ player.skull|raw }}
-			</td>
-			<td>{{ player.level }}</td>
+<div class="card card-data online-list">
+	<div class="card-h"><h2>Players Online</h2><span class="hint">{{ players|length }} online now</span></div>
+	<table>
+		<tr>
+			<th>Name <small style="font-weight:400">[<a href="{{ getLink('online') }}?order=name_{{ order == 'name_asc' ? 'desc' : 'asc' }}">sort</a>]</small></th>
+			<th class="num" style="width:14%">Level <small style="font-weight:400">[<a href="{{ getLink('online') }}?order=level_{{ order == 'level_asc' ? 'desc' : 'asc' }}">sort</a>]</small></th>
 		</tr>
-	{% endfor %}
-</table>
-{% endset %}
-{{ include('tables.headline.html.twig') }}
+		{% if players|length < 1 %}
+		<tr><td colspan="2">No players online.</td></tr>
+		{% else %}
+			{% for player in players %}
+			<tr>
+				<td>{{ player.name|raw }}{{ player.skull|raw }}</td>
+				<td class="num">{{ player.level }}</td>
+			</tr>
+			{% endfor %}
+		{% endif %}
+	</table>
+</div>
