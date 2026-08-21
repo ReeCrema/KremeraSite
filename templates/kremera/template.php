@@ -32,7 +32,7 @@ $img = $template_path . '/images';
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Alegreya:ital,wght@0,400;0,500;0,700;1,400&family=IM+Fell+English:ital@1&display=swap" rel="stylesheet">
-	<link rel="stylesheet" href="<?php echo $template_path; ?>/style.css?v=5" type="text/css" />
+	<link rel="stylesheet" href="<?php echo $template_path; ?>/style.css?v=6" type="text/css" />
 	<?php echo template_place_holder('head_end'); ?>
 </head>
 <body>
@@ -186,6 +186,10 @@ $img = $template_path . '/images';
 		['rules',      getLink('rules'), 'portal.rules'],
 		['downloads',  $L['download'],   'portal.downloads'],
 	];
+	// título do banner traduzível p/ páginas de conteúdo com chave i18n conhecida
+	// (demais páginas mantêm o título do MyAAC — ex.: nome do personagem)
+	$bannerI18n = ['rules' => 'portal.rules', 'downloads' => 'portal.downloads'];
+	$bannerKey  = $bannerI18n[$cur] ?? null;
 ?>
 <div class="portal-shell">
 	<aside class="portal-side">
@@ -214,7 +218,7 @@ $img = $template_path . '/images';
 		<div class="page-banner" style="--banner-img:url('<?php echo $img; ?>/lore-bg.webp')">
 			<div class="wrap">
 				<span class="eyebrow" data-i18n="portal.eyebrow"></span>
-				<h1><?php echo isset($title) ? $title : $serverName; ?></h1>
+				<h1<?php echo $bannerKey ? ' data-i18n="' . $bannerKey . '"' : ''; ?>><?php echo isset($title) ? $title : $serverName; ?></h1>
 			</div>
 		</div>
 		<div class="portal-content">
